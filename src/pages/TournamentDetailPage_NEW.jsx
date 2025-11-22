@@ -277,7 +277,7 @@ export default function TournamentDetailPage() {
                             <button onClick={() => navigate('/dashboard')} className="btn-ghost mb-2">
                                 ← Back
                             </button>
-                            <h1 className="text-4xl font-bold text-white">{tournament.name}</h1>
+                            <h1 className="text-4xl font-bold text-gradient">{tournament.name}</h1>
                             <p className="text-slate-400 mt-2">
                                 📅 {tournament.date} • 📍 {tournament.location}
                             </p>

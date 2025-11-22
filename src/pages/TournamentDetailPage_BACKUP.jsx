@@ -1,11 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useToast } from '../components/Toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ConfirmModal from '../components/ConfirmModal';
-import BracketTree from '../components/BracketTree';
-import PrintableTiesheet from '../components/PrintableTiesheet';
-import { downloadBracketAsPDF } from '../utils/downloadBracket';
 
 export default function TournamentDetailPage() {
     const { tournamentId } = useParams();
@@ -19,10 +16,7 @@ export default function TournamentDetailPage() {
     const [newTeamName, setNewTeamName] = useState('');
     const [bracket, setBracket] = useState(null);
     const [showBracket, setShowBracket] = useState(false);
-    const [downloading, setDownloading] = useState(false);
     const [confirmModal, setConfirmModal] = useState({ isOpen: false });
-
-    const printableRef = useRef(null);
 
     useEffect(() => {
         loadTournament();
@@ -103,22 +97,13 @@ export default function TournamentDetailPage() {
     }
 
     function handleRemoveTeam(teamId) {
-        setConfirmModal({
-            isOpen: true,
-            action: 'removeTeam',
-            data: teamId,
-            title: 'Remove Team?',
-            message: 'Are you sure you want to remove this team from the tournament?',
-            type: 'danger'
-        });
-    }
+        if (!window.confirm('Are you sure you want to remove this team?')) {
+            return;
+        }
 
-    function confirmRemoveTeam() {
-        const teamId = confirmModal.data;
         const updatedTeams = teams.filter(t => t.id !== teamId);
         setTeams(updatedTeams);
         localStorage.setItem(`tournament_${tournamentId}_teams`, JSON.stringify(updatedTeams));
-        setConfirmModal({ isOpen: false });
         toast.success('Team removed');
     }
 
@@ -128,8 +113,10 @@ export default function TournamentDetailPage() {
             return;
         }
 
+        // Shuffle teams
         const shuffled = [...teams].sort(() => Math.random() - 0.5);
 
+        // Create initial round matches
         const matches = [];
         for (let i = 0; i < shuffled.length; i += 2) {
             if (i + 1 < shuffled.length) {
@@ -141,6 +128,7 @@ export default function TournamentDetailPage() {
                     round: 1
                 });
             } else {
+                // Bye - team advances automatically
                 matches.push({
                     id: `match-bye-${Date.now()}`,
                     team1: shuffled[i],
@@ -162,67 +150,32 @@ export default function TournamentDetailPage() {
         setBracket(newBracket);
         setShowBracket(true);
         localStorage.setItem(`tournament_${tournamentId}_bracket`, JSON.stringify(newBracket));
-        toast.success('Tie sheet created!');
-    }
-
-    function handleResetBracket() {
-        setConfirmModal({
-            isOpen: true,
-            action: 'resetBracket',
-            title: 'Reset Tie Sheet?',
-            message: 'This will delete all match results and you will need to create a new tie sheet. This action cannot be undone.',
-            type: 'warning'
-        });
-    }
-
-    function confirmReset() {
-        setBracket(null);
-        setShowBracket(false);
-        localStorage.removeItem(`tournament_${tournamentId}_bracket`);
-        setConfirmModal({ isOpen: false });
-        toast.success('Tie sheet reset');
-    }
-
-    async function handleDownloadTiesheet() {
-        if (!printableRef.current) {
-            toast.error('Tiesheet not found');
-            return;
-        }
-
-        try {
-            setDownloading(true);
-            toast.success('Generating tiesheet...');
-
-            const filename = `${tournament.name.replace(/\s+/g, '_')}_Tiesheet.pdf`;
-            await downloadBracketAsPDF(printableRef.current, filename);
-
-            toast.success('Tiesheet downloaded!');
-        } catch (error) {
-            console.error('Error downloading tiesheet:', error);
-            toast.error('Failed to download tiesheet');
-        } finally {
-            setDownloading(false);
-        }
+        toast.success('Bracket generated!');
     }
 
     function selectWinner(matchId, winner) {
         const updatedBracket = { ...bracket };
         const currentRoundMatches = updatedBracket.rounds[bracket.currentRound - 1];
 
+        // Update winner in current match
         const match = currentRoundMatches.find(m => m.id === matchId);
         if (!match) return;
 
         match.winner = winner;
 
+        // Check if all matches in current round are complete
         const allComplete = currentRoundMatches.every(m => m.winner !== null);
 
         if (allComplete) {
+            // Get all winners
             const winners = currentRoundMatches.map(m => m.winner);
 
+            // Check if we have a champion
             if (winners.length === 1) {
                 updatedBracket.champion = winners[0];
                 toast.success(`🏆 ${winners[0].name} is the champion!`);
             } else {
+                // Create next round
                 const nextRoundMatches = [];
                 for (let i = 0; i < winners.length; i += 2) {
                     if (i + 1 < winners.length) {
@@ -234,6 +187,7 @@ export default function TournamentDetailPage() {
                             round: bracket.currentRound + 1
                         });
                     } else {
+                        // Bye
                         nextRoundMatches.push({
                             id: `match-bye-r${bracket.currentRound + 1}-${Date.now()}`,
                             team1: winners[i],
@@ -255,6 +209,14 @@ export default function TournamentDetailPage() {
         localStorage.setItem(`tournament_${tournamentId}_bracket`, JSON.stringify(updatedBracket));
     }
 
+    function confirmReset() {
+        setBracket(null);
+        setShowBracket(false);
+        localStorage.removeItem(`tournament_${tournamentId}_bracket`);
+        setConfirmModal({ isOpen: false });
+        toast.success('Tie sheet reset');
+    }
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-dark">
@@ -265,6 +227,7 @@ export default function TournamentDetailPage() {
 
     if (!tournament) return null;
 
+    const spotsRemaining = tournament.teamCount - teams.length;
     const canAddMore = teams.length < tournament.teamCount;
 
     return (
@@ -277,7 +240,7 @@ export default function TournamentDetailPage() {
                             <button onClick={() => navigate('/dashboard')} className="btn-ghost mb-2">
                                 ← Back
                             </button>
-                            <h1 className="text-4xl font-bold text-white">{tournament.name}</h1>
+                            <h1 className="text-4xl font-bold text-gradient">{tournament.name}</h1>
                             <p className="text-slate-400 mt-2">
                                 📅 {tournament.date} • 📍 {tournament.location}
                             </p>
@@ -385,50 +348,115 @@ export default function TournamentDetailPage() {
                                     ← Back to Teams
                                 </button>
                                 <button
-                                    onClick={handleDownloadTiesheet}
-                                    disabled={downloading}
-                                    className="btn-primary disabled:opacity-50"
+                                    onClick={() => window.print()}
+                                    className="btn-primary"
                                 >
-                                    {downloading ? '⏳ Generating...' : '📥 Download Tiesheet'}
+                                    📥 Download Tiesheet
                                 </button>
-                                <button onClick={handleResetBracket} className="btn-secondary">
+                                <button
+                                    onClick={() => {
+                                        setConfirmModal({
+                                            isOpen: true,
+                                            title: 'Reset Tie Sheet?',
+                                            message: 'This will delete all match results and you will need to create a new tie sheet. This action cannot be undone.',
+                                            type: 'warning'
+                                        });
+                                    }}
+                                    className="btn-secondary"
+                                >
                                     🔄 Reset
                                 </button>
                             </div>
                         </div>
 
-                        {/* Interactive Bracket Tree */}
-                        <BracketTree
-                            bracket={bracket}
-                            tournament={tournament}
-                            onSelectWinner={selectWinner}
-                        />
+                        {bracket.champion ? (
+                            <div className="text-center py-16">
+                                <div className="text-8xl mb-6 animate-pulse-glow">🏆</div>
+                                <h2 className="text-5xl font-black text-gradient mb-4">CHAMPION</h2>
+                                <p className="text-4xl font-bold text-white">{bracket.champion.name}</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-12">
+                                {bracket.rounds.map((roundMatches, roundIndex) => (
+                                    <div key={roundIndex}>
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <h3 className="text-2xl font-bold text-white">
+                                                {roundIndex === bracket.totalRounds - 1 ? 'FINAL' :
+                                                    roundIndex === bracket.totalRounds - 2 ? 'SEMI FINALS' :
+                                                        roundIndex === bracket.totalRounds - 3 ? 'QUARTER FINALS' :
+                                                            `Round ${roundIndex + 1}`}
+                                            </h3>
+                                            {roundIndex + 1 === bracket.currentRound && (
+                                                <span className="badge badge-success animate-pulse">Current</span>
+                                            )}
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            {roundMatches.map((match) => (
+                                                <div key={match.id} className="glass-card p-6 border-2 border-white/10">
+                                                    {match.isBye ? (
+                                                        <div className="text-center py-4">
+                                                            <p className="text-white font-semibold text-lg">{match.team1.name}</p>
+                                                            <span className="badge badge-warning mt-2">BYE - Auto Advance</span>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="space-y-4">
+                                                            {/* Team 1 */}
+                                                            <div
+                                                                onClick={() => !match.winner && selectWinner(match.id, match.team1)}
+                                                                className={`flex items-center justify-between p-4 rounded-xl cursor-pointer transition-all ${match.winner?.id === match.team1.id
+                                                                    ? 'bg-green-500/20 border-2 border-green-500'
+                                                                    : 'bg-white/5 hover:bg-white/10 border-2 border-white/10'
+                                                                    }`}
+                                                            >
+                                                                <span className="text-white font-semibold">{match.team1.name}</span>
+                                                                <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${match.winner?.id === match.team1.id
+                                                                    ? 'bg-green-500 border-green-500'
+                                                                    : 'border-white/30'
+                                                                    }`}>
+                                                                    {match.winner?.id === match.team1.id && <span className="text-white text-xl">✓</span>}
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="text-center text-slate-500 font-bold">VS</div>
+
+                                                            {/* Team 2 */}
+                                                            <div
+                                                                onClick={() => !match.winner && selectWinner(match.id, match.team2)}
+                                                                className={`flex items-center justify-between p-4 rounded-xl cursor-pointer transition-all ${match.winner?.id === match.team2.id
+                                                                    ? 'bg-green-500/20 border-2 border-green-500'
+                                                                    : 'bg-white/5 hover:bg-white/10 border-2 border-white/10'
+                                                                    }`}
+                                                            >
+                                                                <span className="text-white font-semibold">{match.team2.name}</span>
+                                                                <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${match.winner?.id === match.team2.id
+                                                                    ? 'bg-green-500 border-green-500'
+                                                                    : 'border-white/30'
+                                                                    }`}>
+                                                                    {match.winner?.id === match.team2.id && <span className="text-white text-xl">✓</span>}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
 
-            {/* Hidden Printable Version for PDF Export */}
-            <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
-                <div ref={printableRef}>
-                    {bracket && <PrintableTiesheet tournament={tournament} bracket={bracket} />}
-                </div>
-            </div>
-
-            {/* Confirm Modal */}
             <ConfirmModal
                 isOpen={confirmModal.isOpen}
                 onClose={() => setConfirmModal({ isOpen: false })}
-                onConfirm={() => {
-                    if (confirmModal.action === 'removeTeam') {
-                        confirmRemoveTeam();
-                    } else if (confirmModal.action === 'resetBracket') {
-                        confirmReset();
-                    }
-                }}
+                onConfirm={confirmReset}
                 title={confirmModal.title}
                 message={confirmModal.message}
                 type={confirmModal.type}
-                confirmText={confirmModal.action === 'removeTeam' ? 'Remove' : 'Reset'}
+                confirmText="Reset"
             />
         </div>
     );
