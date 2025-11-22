@@ -36,3 +36,51 @@
     transform: rotate(360deg);
   }
 }
+
+.team-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 16px 0;
+}
+
+.team-input {
+  padding: 8px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  color: white;
+  min-width: 220px;
+}
+
+.team-submit {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: none;
+  background: #61dafb;
+  color: #000;
+  cursor: pointer;
+}
+
+.teams-list {
+  width: 100%;
+  max-width: 720px;
+  margin-top: 12px;
+}
+
+.team-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.02);
+  margin-bottom: 8px;
+}
+
+.team-name { font-weight: 600; }
+.team-meta { font-size: 0.85em; opacity: 0.8; margin-left: 12px; }
+.team-remove { background: transparent; color: #ff6b6b; border: none; cursor: pointer; }
+.error { color: #ffb3b3; margin-left: 8px; }
