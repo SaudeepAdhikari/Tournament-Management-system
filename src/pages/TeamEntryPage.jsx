@@ -121,7 +121,7 @@ export default function TeamEntryPage() {
               className="btn-primary flex-1"
             >
               <span className="flex items-center justify-center gap-2">
-                🏆 Generate Bracket
+                🏆 Generate Tie Sheet
               </span>
             </button>
           </div>
