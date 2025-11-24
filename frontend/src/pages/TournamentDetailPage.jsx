@@ -7,6 +7,8 @@ import BracketTree from '../components/BracketTree';
 import PrintableTiesheet from '../components/PrintableTiesheet';
 import { downloadBracketAsPDF } from '../utils/downloadBracket';
 
+import { getTournament, getTeamsByTournament, createTeam, deleteTeam } from '../backend/firebase/database';
+
 export default function TournamentDetailPage() {
     const { tournamentId } = useParams();
     const navigate = useNavigate();
@@ -25,43 +27,30 @@ export default function TournamentDetailPage() {
     const printableRef = useRef(null);
 
     useEffect(() => {
-        loadTournament();
+        loadData();
     }, [tournamentId]);
 
-    function loadTournament() {
+    async function loadData() {
         try {
             setLoading(true);
-            const stored = localStorage.getItem('tournaments');
-            if (stored) {
-                const tournaments = JSON.parse(stored);
-                const found = tournaments.find(t => t.id === tournamentId);
-                if (found) {
-                    setTournament(found);
+            const tournamentData = await getTournament(tournamentId);
+            setTournament(tournamentData);
 
-                    const storedTeams = localStorage.getItem(`tournament_${tournamentId}_teams`);
-                    if (storedTeams) {
-                        setTeams(JSON.parse(storedTeams));
-                    }
+            const teamsData = await getTeamsByTournament(tournamentId);
+            setTeams(teamsData);
 
-                    const storedBracket = localStorage.getItem(`tournament_${tournamentId}_bracket`);
-                    if (storedBracket) {
-                        setBracket(JSON.parse(storedBracket));
-                        setShowBracket(true);
-                    }
-                } else {
-                    toast.error('Tournament not found');
-                    navigate('/dashboard');
-                }
-            }
+            // TODO: Load bracket from API (Match collection)
+            // For now, we'll skip bracket loading or implement it later
         } catch (error) {
-            console.error('Error loading tournament:', error);
-            toast.error('Failed to load tournament');
+            console.error('Error loading data:', error);
+            toast.error('Failed to load tournament data');
+            navigate('/dashboard');
         } finally {
             setLoading(false);
         }
     }
 
-    function handleAddTeam(e) {
+    async function handleAddTeam(e) {
         e.preventDefault();
 
         const teamName = newTeamName.trim();
@@ -86,20 +75,20 @@ export default function TournamentDetailPage() {
             return;
         }
 
-        const newTeam = {
-            id: Date.now().toString(),
-            name: teamName,
-            tournamentId: tournamentId,
-            addedAt: new Date().toISOString()
-        };
+        try {
+            const newTeam = await createTeam({
+                name: teamName,
+                tournamentId: tournamentId,
+                status: 'registered'
+            });
 
-        const updatedTeams = [...teams, newTeam];
-        setTeams(updatedTeams);
-        localStorage.setItem(`tournament_${tournamentId}_teams`, JSON.stringify(updatedTeams));
-
-        toast.success(`${teamName} added successfully!`);
-        setNewTeamName('');
-        setShowAddForm(false);
+            setTeams([...teams, newTeam]);
+            toast.success(`${teamName} added successfully!`);
+            setNewTeamName('');
+            setShowAddForm(false);
+        } catch (error) {
+            toast.error('Failed to add team');
+        }
     }
 
     function handleRemoveTeam(teamId) {
@@ -113,13 +102,16 @@ export default function TournamentDetailPage() {
         });
     }
 
-    function confirmRemoveTeam() {
-        const teamId = confirmModal.data;
-        const updatedTeams = teams.filter(t => t.id !== teamId);
-        setTeams(updatedTeams);
-        localStorage.setItem(`tournament_${tournamentId}_teams`, JSON.stringify(updatedTeams));
-        setConfirmModal({ isOpen: false });
-        toast.success('Team removed');
+    async function confirmRemoveTeam() {
+        try {
+            const teamId = confirmModal.data;
+            await deleteTeam(teamId);
+            setTeams(teams.filter(t => t._id !== teamId));
+            setConfirmModal({ isOpen: false });
+            toast.success('Team removed');
+        } catch (error) {
+            toast.error('Failed to remove team');
+        }
     }
 
     function generateBracket() {
@@ -343,7 +335,7 @@ export default function TournamentDetailPage() {
                             ) : (
                                 <div className="space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar">
                                     {teams.map((team, index) => (
-                                        <div key={team.id} className="flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 group">
+                                        <div key={team._id} className="flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 group">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white font-bold flex items-center justify-center">
                                                     {index + 1}
@@ -351,7 +343,7 @@ export default function TournamentDetailPage() {
                                                 <p className="text-white font-semibold text-lg">{team.name}</p>
                                             </div>
                                             <button
-                                                onClick={() => handleRemoveTeam(team.id)}
+                                                onClick={() => handleRemoveTeam(team._id)}
                                                 className="opacity-0 group-hover:opacity-100 px-4 py-2 rounded-lg bg-red-500/10 text-red-300 hover:bg-red-500/20"
                                             >
                                                 Remove

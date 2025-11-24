@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTournaments, deleteTournament } from '../firebase/database';
+import { getTournaments, deleteTournament } from '../backend/firebase/database';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useToast } from '../components/Toast';
+import ConfirmModal from '../components/ConfirmModal';
 
 export default function TournamentDashboard() {
     const navigate = useNavigate();
     const [tournaments, setTournaments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('all'); // all, upcoming, active, completed
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false });
     const toast = useToast();
 
     useEffect(() => {
@@ -18,16 +20,8 @@ export default function TournamentDashboard() {
     async function loadTournaments() {
         try {
             setLoading(true);
-            // For now, use localStorage fallback until Firebase is configured
-            const stored = localStorage.getItem('tournaments');
-            if (stored) {
-                setTournaments(JSON.parse(stored));
-            } else {
-                setTournaments([]);
-            }
-            // TODO: Replace with Firebase call when configured
-            // const data = await getTournaments();
-            // setTournaments(data);
+            const data = await getTournaments();
+            setTournaments(data);
         } catch (error) {
             console.error('Error loading tournaments:', error);
             toast.error('Failed to load tournaments');
@@ -36,19 +30,24 @@ export default function TournamentDashboard() {
         }
     }
 
-    async function handleDelete(tournamentId) {
-        if (!window.confirm('Are you sure you want to delete this tournament? This action cannot be undone.')) {
-            return;
-        }
+    function handleDeleteClick(tournamentId) {
+        setConfirmModal({
+            isOpen: true,
+            tournamentId,
+            title: 'Delete Tournament?',
+            message: 'Are you sure you want to delete this tournament? This action cannot be undone.',
+            type: 'danger'
+        });
+    }
 
+    async function confirmDelete() {
+        const { tournamentId } = confirmModal;
         try {
-            // TODO: Replace with Firebase call
-            // await deleteTournament(tournamentId);
-            const updated = tournaments.filter(t => t.id !== tournamentId);
+            await deleteTournament(tournamentId);
+            const updated = tournaments.filter(t => t._id !== tournamentId);
             setTournaments(updated);
-            localStorage.setItem('tournaments', JSON.stringify(updated));
-            localStorage.removeItem(`tournament_${tournamentId}_teams`);
             toast.success('Tournament deleted successfully');
+            setConfirmModal({ isOpen: false });
         } catch (error) {
             console.error('Error deleting tournament:', error);
             toast.error('Failed to delete tournament');
@@ -139,7 +138,7 @@ export default function TournamentDashboard() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredTournaments.map(tournament => (
                             <div
-                                key={tournament.id}
+                                key={tournament._id}
                                 className="bg-white/5 rounded-xl p-6 border border-white/10 hover:border-white/20 transition group"
                             >
                                 <div className="flex items-start justify-between mb-4">
@@ -171,19 +170,19 @@ export default function TournamentDashboard() {
 
                                 <div className="flex gap-2">
                                     <button
-                                        onClick={() => navigate(`/tournament/${tournament.id}`)}
+                                        onClick={() => navigate(`/tournament/${tournament._id}`)}
                                         className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition"
                                     >
                                         View
                                     </button>
                                     <button
-                                        onClick={() => navigate(`/tournament/${tournament.id}/edit`)}
+                                        onClick={() => navigate(`/tournament/${tournament._id}/edit`)}
                                         className="px-4 py-2 border border-white/20 hover:bg-white/5 text-white rounded-lg transition"
                                     >
                                         Edit
                                     </button>
                                     <button
-                                        onClick={() => handleDelete(tournament.id)}
+                                        onClick={() => handleDeleteClick(tournament._id)}
                                         className="px-4 py-2 border border-red-500/30 hover:bg-red-500/10 text-red-300 rounded-lg transition"
                                     >
                                         Delete
@@ -194,6 +193,16 @@ export default function TournamentDashboard() {
                     </div>
                 )}
             </div>
+
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false })}
+                onConfirm={confirmDelete}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                type={confirmModal.type}
+                confirmText="Delete"
+            />
         </div>
     );
 }

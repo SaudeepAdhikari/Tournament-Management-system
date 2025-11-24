@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createTournament } from '../firebase/database';
+import { createTournament } from '../backend/firebase/database';
 import { useToast } from '../components/Toast';
 import { ButtonSpinner } from '../components/LoadingSpinner';
 
@@ -65,17 +65,11 @@ export default function CreateTournamentPage() {
 
             const tournamentData = {
                 ...formData,
-                status: 'upcoming',
-                id: Date.now().toString()
+                status: 'upcoming'
             };
 
-            // TODO: Replace with Firebase call when configured
-            // const result = await createTournament(tournamentData);
-
-            // For now, save to localStorage
-            const existing = JSON.parse(localStorage.getItem('tournaments') || '[]');
-            existing.push(tournamentData);
-            localStorage.setItem('tournaments', JSON.stringify(existing));
+            // Call API to create tournament
+            await createTournament(tournamentData);
 
             toast.success('Tournament created successfully!');
             navigate('/dashboard');
