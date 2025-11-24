@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function Header() {
     const navigate = useNavigate();
     const location = useLocation();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const { user, logout } = useAuth();
 
     const isActive = (path) => location.pathname === path;
 
@@ -13,6 +15,12 @@ export default function Header() {
         { name: 'Teams', path: '/teams' },
         { name: 'About', path: '/about' },
     ];
+
+    const handleLogout = () => {
+        logout();
+        setIsMobileMenuOpen(false);
+        navigate('/login');
+    };
 
     return (
         <header className="fixed top-0 left-0 right-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-white/10">
@@ -44,12 +52,30 @@ export default function Header() {
                             </button>
                         ))}
 
-                        <button
-                            onClick={() => navigate('/dashboard')}
-                            className="ml-4 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transform hover:-translate-y-0.5 transition-all duration-200"
-                        >
-                            Dashboard
-                        </button>
+                        {user ? (
+                            <div className="flex items-center gap-4 ml-4">
+                                <span className="text-sm text-slate-400">Hi, {user.name}</span>
+                                <button
+                                    onClick={() => navigate('/dashboard')}
+                                    className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transform hover:-translate-y-0.5 transition-all duration-200"
+                                >
+                                    Dashboard
+                                </button>
+                                <button
+                                    onClick={handleLogout}
+                                    className="px-4 py-2 border border-white/20 hover:bg-white/5 text-white text-sm font-medium rounded-xl transition-all duration-200"
+                                >
+                                    Logout
+                                </button>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={() => navigate('/login')}
+                                className="ml-4 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transform hover:-translate-y-0.5 transition-all duration-200"
+                            >
+                                Login
+                            </button>
+                        )}
                     </nav>
 
                     {/* Mobile Menu Button */}
@@ -87,15 +113,37 @@ export default function Header() {
                                 {link.name}
                             </button>
                         ))}
-                        <button
-                            onClick={() => {
-                                navigate('/dashboard');
-                                setIsMobileMenuOpen(false);
-                            }}
-                            className="block w-full mt-4 px-4 py-3 bg-indigo-600 text-white text-center font-semibold rounded-xl shadow-lg"
-                        >
-                            Dashboard
-                        </button>
+
+                        {user ? (
+                            <>
+                                <div className="px-4 py-2 text-sm text-slate-400">Signed in as {user.name}</div>
+                                <button
+                                    onClick={() => {
+                                        navigate('/dashboard');
+                                        setIsMobileMenuOpen(false);
+                                    }}
+                                    className="block w-full mt-2 px-4 py-3 bg-indigo-600 text-white text-center font-semibold rounded-xl shadow-lg"
+                                >
+                                    Dashboard
+                                </button>
+                                <button
+                                    onClick={handleLogout}
+                                    className="block w-full mt-2 px-4 py-3 border border-white/20 text-white text-center font-medium rounded-xl"
+                                >
+                                    Logout
+                                </button>
+                            </>
+                        ) : (
+                            <button
+                                onClick={() => {
+                                    navigate('/login');
+                                    setIsMobileMenuOpen(false);
+                                }}
+                                className="block w-full mt-4 px-4 py-3 bg-indigo-600 text-white text-center font-semibold rounded-xl shadow-lg"
+                            >
+                                Login
+                            </button>
+                        )}
                     </div>
                 </div>
             )}
