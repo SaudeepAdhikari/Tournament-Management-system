@@ -8,7 +8,7 @@ export default function AboutPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-slate-900 to-black p-6">
       <div className="max-w-4xl w-full rounded-2xl border border-white/20 p-10 shadow-xl backdrop-blur-lg bg-white/5">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-extrabold text-white mb-2">About Ambition Futsal</h1>
+          <h1 className="text-4xl font-extrabold text-white mb-2">About KickOff Arena</h1>
           <p className="text-indigo-200/80 text-lg">Professional Tournament Management System</p>
         </div>
 
@@ -16,8 +16,8 @@ export default function AboutPage() {
           <section>
             <h2 className="text-2xl font-semibold text-white mb-3">Our Mission</h2>
             <p className="text-slate-300 leading-relaxed">
-              Ambition Futsal is dedicated to providing a comprehensive, easy-to-use tournament 
-              management system for futsal organizers, teams, and players. We believe in making 
+              KickOff Arena is dedicated to providing a comprehensive, easy-to-use tournament
+              management system for futsal organizers, teams, and players. We believe in making
               tournament organization seamless and accessible to everyone.
             </p>
           </section>
@@ -52,20 +52,14 @@ export default function AboutPage() {
             </ul>
           </section>
 
-          <section>
-            <h2 className="text-2xl font-semibold text-white mb-3">Technology</h2>
-            <p className="text-slate-300 leading-relaxed">
-              Built with modern web technologies including React, Tailwind CSS, and Firebase, 
-              ensuring a fast, reliable, and beautiful user experience across all devices.
-            </p>
-          </section>
+
 
           <section>
             <h2 className="text-2xl font-semibold text-white mb-3">Contact</h2>
             <p className="text-slate-300 leading-relaxed">
               For support, feedback, or partnership inquiries, please reach out to us at{' '}
-              <a href="mailto:support@ambitionfutsal.com" className="text-indigo-400 hover:text-indigo-300 underline">
-                support@ambitionfutsal.com
+              <a href="mailto:support@kickoffarena.com" className="text-indigo-400 hover:text-indigo-300 underline">
+                support@kickoffarena.com
               </a>
             </p>
           </section>
