@@ -66,12 +66,12 @@ export default function PrintableTiesheet({ tournament, bracket }) {
                                         ) : (
                                             <div className="p-6">
                                                 {/* Team 1 */}
-                                                <div className={`flex items-center justify-between p-4 border-2 mb-4 ${match.winner?.id === match.team1.id
+                                                <div className={`flex items-center justify-between p-4 border-2 mb-4 ${match.winner?._id === match.team1._id
                                                     ? 'border-green-600 bg-green-100'
                                                     : 'border-gray-400'
                                                     }`}>
                                                     <span className="text-xl font-bold">{match.team1.name}</span>
-                                                    {match.winner?.id === match.team1.id && (
+                                                    {match.winner?._id === match.team1._id && (
                                                         <div className="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center text-2xl font-bold">
                                                             ✓
                                                         </div>
@@ -87,12 +87,12 @@ export default function PrintableTiesheet({ tournament, bracket }) {
                                                 </div>
 
                                                 {/* Team 2 */}
-                                                <div className={`flex items-center justify-between p-4 border-2 ${match.winner?.id === match.team2.id
+                                                <div className={`flex items-center justify-between p-4 border-2 ${match.winner?._id === match.team2._id
                                                     ? 'border-green-600 bg-green-100'
                                                     : 'border-gray-400'
                                                     }`}>
                                                     <span className="text-xl font-bold">{match.team2.name}</span>
-                                                    {match.winner?.id === match.team2.id && (
+                                                    {match.winner?._id === match.team2._id && (
                                                         <div className="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center text-2xl font-bold">
                                                             ✓
                                                         </div>

@@ -51,14 +51,14 @@ export default function BracketTree({ bracket, tournament, onSelectWinner }) {
                                                 {/* Team 1 */}
                                                 <div
                                                     onClick={() => !match.winner && onSelectWinner && onSelectWinner(match.id, match.team1)}
-                                                    className={`p-3 border-b border-white/10 cursor-pointer transition-all ${match.winner?.id === match.team1.id
-                                                            ? 'bg-green-500/30 border-l-4 border-l-green-500'
-                                                            : 'hover:bg-white/5'
+                                                    className={`p-3 border-b border-white/10 cursor-pointer transition-all ${match.winner?._id === match.team1._id
+                                                        ? 'bg-green-500/30 border-l-4 border-l-green-500'
+                                                        : 'hover:bg-white/5'
                                                         }`}
                                                 >
                                                     <div className="flex items-center justify-between">
                                                         <span className="text-white font-medium text-sm">{match.team1.name}</span>
-                                                        {match.winner?.id === match.team1.id && (
+                                                        {match.winner?._id === match.team1._id && (
                                                             <span className="text-green-400 text-lg">✓</span>
                                                         )}
                                                     </div>
@@ -67,14 +67,14 @@ export default function BracketTree({ bracket, tournament, onSelectWinner }) {
                                                 {/* Team 2 */}
                                                 <div
                                                     onClick={() => !match.winner && onSelectWinner && onSelectWinner(match.id, match.team2)}
-                                                    className={`p-3 cursor-pointer transition-all ${match.winner?.id === match.team2.id
-                                                            ? 'bg-green-500/30 border-l-4 border-l-green-500'
-                                                            : 'hover:bg-white/5'
+                                                    className={`p-3 cursor-pointer transition-all ${match.winner?._id === match.team2._id
+                                                        ? 'bg-green-500/30 border-l-4 border-l-green-500'
+                                                        : 'hover:bg-white/5'
                                                         }`}
                                                 >
                                                     <div className="flex items-center justify-between">
                                                         <span className="text-white font-medium text-sm">{match.team2.name}</span>
-                                                        {match.winner?.id === match.team2.id && (
+                                                        {match.winner?._id === match.team2._id && (
                                                             <span className="text-green-400 text-lg">✓</span>
                                                         )}
                                                     </div>
