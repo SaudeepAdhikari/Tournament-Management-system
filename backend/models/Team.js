@@ -20,8 +20,17 @@ const teamSchema = mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['registered', 'paid', 'disqualified'],
+        enum: ['registered', 'approved', 'rejected'],
         default: 'registered'
+    },
+    paymentStatus: {
+        type: String,
+        enum: ['pending', 'paid', 'failed'],
+        default: 'pending'
+    },
+    transactionId: {
+        type: String,
+        default: null
     }
 }, {
     timestamps: true

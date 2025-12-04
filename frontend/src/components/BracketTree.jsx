@@ -38,7 +38,7 @@ export default function BracketTree({ bracket, tournament, onSelectWinner }) {
                         {/* Matches */}
                         <div className="flex flex-col justify-around flex-1 gap-8">
                             {roundMatches.map((match, matchIndex) => (
-                                <div key={match.id} className="relative">
+                                <div key={match._id} className="relative">
                                     {/* Match Box */}
                                     <div className="glass-card border-2 border-white/20 rounded-lg overflow-hidden min-w-[250px]">
                                         {match.isBye ? (
@@ -50,15 +50,15 @@ export default function BracketTree({ bracket, tournament, onSelectWinner }) {
                                             <div>
                                                 {/* Team 1 */}
                                                 <div
-                                                    onClick={() => !match.winner && onSelectWinner && onSelectWinner(match.id, match.team1)}
-                                                    className={`p-3 border-b border-white/10 cursor-pointer transition-all ${match.winner?._id === match.team1._id
+                                                    onClick={() => !match.winner?.id && onSelectWinner && onSelectWinner(match._id, match.team1)}
+                                                    className={`p-3 border-b border-white/10 cursor-pointer transition-all ${(match.winner?.id && match.winner.id === match.team1.id)
                                                         ? 'bg-green-500/30 border-l-4 border-l-green-500'
                                                         : 'hover:bg-white/5'
                                                         }`}
                                                 >
                                                     <div className="flex items-center justify-between">
                                                         <span className="text-white font-medium text-sm">{match.team1.name}</span>
-                                                        {match.winner?._id === match.team1._id && (
+                                                        {(match.winner?.id && match.winner.id === match.team1.id) && (
                                                             <span className="text-green-400 text-lg">✓</span>
                                                         )}
                                                     </div>
@@ -66,15 +66,15 @@ export default function BracketTree({ bracket, tournament, onSelectWinner }) {
 
                                                 {/* Team 2 */}
                                                 <div
-                                                    onClick={() => !match.winner && onSelectWinner && onSelectWinner(match.id, match.team2)}
-                                                    className={`p-3 cursor-pointer transition-all ${match.winner?._id === match.team2._id
+                                                    onClick={() => !match.winner?.id && onSelectWinner && onSelectWinner(match._id, match.team2)}
+                                                    className={`p-3 cursor-pointer transition-all ${(match.winner?.id && match.winner.id === match.team2.id)
                                                         ? 'bg-green-500/30 border-l-4 border-l-green-500'
                                                         : 'hover:bg-white/5'
                                                         }`}
                                                 >
                                                     <div className="flex items-center justify-between">
                                                         <span className="text-white font-medium text-sm">{match.team2.name}</span>
-                                                        {match.winner?._id === match.team2._id && (
+                                                        {(match.winner?.id && match.winner.id === match.team2.id) && (
                                                             <span className="text-green-400 text-lg">✓</span>
                                                         )}
                                                     </div>

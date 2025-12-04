@@ -201,6 +201,22 @@ export async function getMatchesByTournament(tournamentId) {
 }
 
 /**
+ * Delete all matches for a tournament
+ */
+export async function deleteMatchesByTournament(tournamentId) {
+    try {
+        const response = await fetch(`${API_URL}/matches?tournamentId=${tournamentId}`, {
+            method: 'DELETE'
+        });
+        if (!response.ok) throw new Error('Failed to delete matches');
+        return await response.json();
+    } catch (error) {
+        console.error('Error deleting matches:', error);
+        throw error;
+    }
+}
+
+/**
  * Update match score
  */
 export async function updateMatchScore(matchId, scoreData) {

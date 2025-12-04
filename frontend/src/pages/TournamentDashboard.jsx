@@ -14,21 +14,20 @@ export default function TournamentDashboard() {
     const toast = useToast();
 
     useEffect(() => {
+        async function loadTournaments() {
+            try {
+                setLoading(true);
+                const data = await getTournaments();
+                setTournaments(data);
+            } catch (error) {
+                console.error('Error loading tournaments:', error);
+                toast.error('Failed to load tournaments');
+            } finally {
+                setLoading(false);
+            }
+        }
         loadTournaments();
     }, []);
-
-    async function loadTournaments() {
-        try {
-            setLoading(true);
-            const data = await getTournaments();
-            setTournaments(data);
-        } catch (error) {
-            console.error('Error loading tournaments:', error);
-            toast.error('Failed to load tournaments');
-        } finally {
-            setLoading(false);
-        }
-    }
 
     function handleDeleteClick(tournamentId) {
         setConfirmModal({

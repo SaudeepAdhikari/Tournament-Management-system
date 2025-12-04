@@ -35,23 +35,7 @@ export default function BracketPage() {
   // matches state: winners for matches 0..6 (4 quarters : 0-3, semis:4-5, final:6)
   const [winners, setWinners] = useState(() => Array(7).fill(null));
 
-  function setWinner(matchIdx, winnerName) {
-    setWinners(prev => {
-      const copy = [...prev];
-      copy[matchIdx] = winnerName;
 
-      // auto-advance: if quarterfinal (0-3) -> set semifinal slots
-      if (matchIdx >= 0 && matchIdx <= 3) {
-        const semiIndex = 4 + Math.floor(matchIdx / 2);
-        // set the appropriate semifinal team
-        const slot = matchIdx % 2 === 0 ? 0 : 1; // even maps to top
-        // If both quarter winners available, the semifinal winner remains null until user picks
-        // We store winners[semiIndex] as null until selected.
-      }
-
-      return copy;
-    });
-  }
 
   // helper to compute match teams given current winners and base teams
   function getMatchTeams(idx) {
