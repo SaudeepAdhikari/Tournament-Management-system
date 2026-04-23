@@ -27,6 +27,7 @@ export default function TournamentDashboard() {
             }
         }
         loadTournaments();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     function handleDeleteClick(tournamentId) {

@@ -16,6 +16,7 @@ export default function PlayerManagerModal({ isOpen, onClose, team }) {
         if (isOpen && team) {
             loadPlayers();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, team]);
 
     async function loadPlayers() {
