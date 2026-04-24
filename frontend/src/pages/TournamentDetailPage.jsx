@@ -62,7 +62,7 @@ export default function TournamentDetailPage() {
             }
         }
         loadData();
-    }, [tournamentId]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [tournamentId, toast, navigate]);
 
     // Update bracket when matches change
     useEffect(() => {
