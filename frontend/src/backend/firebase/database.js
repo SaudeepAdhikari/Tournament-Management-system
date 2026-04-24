@@ -4,7 +4,7 @@
  * Replaces previous Firebase implementation
  */
 
-const API_URL = 'https://kick-off-arena.onrender.com/api';
+const API_URL = 'https://kickoff-arena-quve.onrender.com/api';
 
 // ==================== TOURNAMENTS ====================
 
