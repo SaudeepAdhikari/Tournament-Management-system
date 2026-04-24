@@ -43,7 +43,7 @@ export default function Header() {
                         className="flex items-center gap-3 cursor-pointer group"
                         onClick={() => navigate('/')}
                     >
-                        <div className="text-3xl transform group-hover:scale-110 transition-transform duration-200">⚽</div>
+                        <img src={process.env.PUBLIC_URL + "/favicon.png"} alt="Logo" className="w-10 h-10 object-contain transform group-hover:scale-110 transition-transform duration-200" />
                         <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70 group-hover:to-indigo-400 transition-all duration-300">
                             KickOff Arena
                         </span>
