@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const response = await fetch('http://localhost:5000/api/users/login', {
+            const response = await fetch('https://kick-off-arena.onrender.com/api/users/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (name, email, password, role, phone) => {
         try {
-            const response = await fetch('http://localhost:5000/api/users', {
+            const response = await fetch('https://kick-off-arena.onrender.com/api/users', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }) => {
 
     const updateProfile = async (userData) => {
         try {
-            const response = await fetch('http://localhost:5000/api/users/profile', {
+            const response = await fetch('https://kick-off-arena.onrender.com/api/users/profile', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

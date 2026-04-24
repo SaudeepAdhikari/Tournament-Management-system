@@ -20,7 +20,7 @@ export default function TeamRegistrationPage() {
     useEffect(() => {
         async function loadTournament() {
             try {
-                const res = await fetch(`http://localhost:5000/api/tournaments/${tournamentId}`);
+                const res = await fetch(`https://kick-off-arena.onrender.com/api/tournaments/${tournamentId}`);
                 if (!res.ok) throw new Error('Failed to load tournament');
                 const data = await res.json();
                 setTournament(data);
@@ -45,7 +45,7 @@ export default function TeamRegistrationPage() {
         setProcessing(true);
         try {
             // 1. Create Team (Pending Payment)
-            const teamRes = await fetch('http://localhost:5000/api/teams', {
+            const teamRes = await fetch('https://kick-off-arena.onrender.com/api/teams', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -60,7 +60,7 @@ export default function TeamRegistrationPage() {
             const team = await teamRes.json();
 
             // 2. Initiate Payment
-            const paymentRes = await fetch('http://localhost:5000/api/payments/initiate', {
+            const paymentRes = await fetch('https://kick-off-arena.onrender.com/api/payments/initiate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -76,7 +76,7 @@ export default function TeamRegistrationPage() {
             // In real app, we would redirect to paymentData.paymentUrl
             // Here we just call verify directly to simulate success
 
-            const verifyRes = await fetch('http://localhost:5000/api/payments/verify', {
+            const verifyRes = await fetch('https://kick-off-arena.onrender.com/api/payments/verify', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

@@ -7,7 +7,7 @@ export default function Leaderboard({ tournamentId }) {
     useEffect(() => {
         async function fetchStats() {
             try {
-                const response = await fetch(`http://localhost:5000/api/stats/top-scorers?tournamentId=${tournamentId}`);
+                const response = await fetch(`https://kick-off-arena.onrender.com/api/stats/top-scorers?tournamentId=${tournamentId}`);
                 const data = await response.json();
                 setTopScorers(data);
             } catch (error) {

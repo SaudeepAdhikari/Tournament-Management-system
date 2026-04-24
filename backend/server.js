@@ -17,7 +17,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:3000",
+        origin: "*",
         methods: ["GET", "POST", "PUT", "DELETE"]
     }
 });
@@ -45,6 +45,10 @@ app.use('/api/matches', require('./routes/matchRoutes'));
 app.use('/api/players', require('./routes/playerRoutes'));
 app.use('/api/stats', require('./routes/statsRoutes'));
 app.use('/api/payments', require('./routes/paymentRoutes'));
+
+app.get('/', (req, res) => {
+    res.json({ message: 'Kick Off Arena API is running...' });
+});
 
 const PORT = process.env.PORT || 5000;
 

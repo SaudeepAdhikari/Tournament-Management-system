@@ -13,9 +13,9 @@ export default function MatchEventLogger({ matchId, team1, team2, onEventLogged 
         // Fetch players for both teams
         async function fetchPlayers() {
             try {
-                const res1 = await fetch(`http://localhost:5000/api/players?teamId=${team1.id}`);
+                const res1 = await fetch(`https://kick-off-arena.onrender.com/api/players?teamId=${team1.id}`);
                 const p1 = await res1.json();
-                const res2 = await fetch(`http://localhost:5000/api/players?teamId=${team2.id}`);
+                const res2 = await fetch(`https://kick-off-arena.onrender.com/api/players?teamId=${team2.id}`);
                 const p2 = await res2.json();
 
                 setPlayers([...p1.map(p => ({ ...p, teamName: team1.name })), ...p2.map(p => ({ ...p, teamName: team2.name }))]);
@@ -35,7 +35,7 @@ export default function MatchEventLogger({ matchId, team1, team2, onEventLogged 
 
         setLoading(true);
         try {
-            const response = await fetch(`http://localhost:5000/api/matches/${matchId}/events`, {
+            const response = await fetch(`https://kick-off-arena.onrender.com/api/matches/${matchId}/events`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
