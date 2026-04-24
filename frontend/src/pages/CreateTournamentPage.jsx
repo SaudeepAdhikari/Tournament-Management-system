@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createTournament } from '../backend/firebase/database';
 import { useToast } from '../components/Toast';
+import { useAuth } from '../context/AuthContext';
 import { ButtonSpinner } from '../components/LoadingSpinner';
 
 export default function CreateTournamentPage() {
     const navigate = useNavigate();
     const toast = useToast();
+    const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
@@ -69,7 +71,7 @@ export default function CreateTournamentPage() {
             };
 
             // Call API to create tournament
-            await createTournament(tournamentData);
+            await createTournament(tournamentData, user.token);
 
             toast.success('Tournament created successfully!');
             navigate('/dashboard');

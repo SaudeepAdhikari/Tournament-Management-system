@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useToast } from '../components/Toast';
+import { useAuth } from '../context/AuthContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 export default function TeamRegistrationPage() {
     const { tournamentId } = useParams();
     const navigate = useNavigate();
     const toast = useToast();
+    const { user } = useAuth();
+    const API_URL = 'https://kickoff-arena-quve.onrender.com/api';
 
     const [tournament, setTournament] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -20,7 +23,7 @@ export default function TeamRegistrationPage() {
     useEffect(() => {
         async function loadTournament() {
             try {
-                const res = await fetch(`https://kickoff-arena-quve.onrender.com/api/tournaments/${tournamentId}`);
+                const res = await fetch(`${API_URL}/tournaments/${tournamentId}`);
                 if (!res.ok) throw new Error('Failed to load tournament');
                 const data = await res.json();
                 setTournament(data);
@@ -45,9 +48,12 @@ export default function TeamRegistrationPage() {
         setProcessing(true);
         try {
             // 1. Create Team (Pending Payment)
-            const teamRes = await fetch('https://kickoff-arena-quve.onrender.com/api/teams', {
+            const teamRes = await fetch(`${API_URL}/teams`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    ...(user?.token && { 'Authorization': `Bearer ${user.token}` })
+                },
                 body: JSON.stringify({
                     ...formData,
                     tournamentId,
@@ -60,9 +66,12 @@ export default function TeamRegistrationPage() {
             const team = await teamRes.json();
 
             // 2. Initiate Payment
-            const paymentRes = await fetch('https://kickoff-arena-quve.onrender.com/api/payments/initiate', {
+            const paymentRes = await fetch(`${API_URL}/payments/initiate`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    ...(user?.token && { 'Authorization': `Bearer ${user.token}` })
+                },
                 body: JSON.stringify({
                     teamId: team._id,
                     amount: 1000 // Example amount
@@ -76,9 +85,12 @@ export default function TeamRegistrationPage() {
             // In real app, we would redirect to paymentData.paymentUrl
             // Here we just call verify directly to simulate success
 
-            const verifyRes = await fetch('https://kickoff-arena-quve.onrender.com/api/payments/verify', {
+            const verifyRes = await fetch(`${API_URL}/payments/verify`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    ...(user?.token && { 'Authorization': `Bearer ${user.token}` })
+                },
                 body: JSON.stringify({
                     teamId: team._id,
                     transactionId: paymentData.transactionId,

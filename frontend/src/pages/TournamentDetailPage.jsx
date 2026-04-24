@@ -12,12 +12,14 @@ import { downloadBracketAsPDF } from '../utils/downloadBracket';
 
 import { getTournament, getTeamsByTournament, createTeam, deleteTeam, createMatch, getMatchesByTournament, updateMatchScore, deleteMatchesByTournament } from '../backend/firebase/database';
 import { useSocket } from '../context/SocketContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function TournamentDetailPage() {
     const { tournamentId } = useParams();
     const navigate = useNavigate();
     const toast = useToast();
     const socket = useSocket();
+    const { user } = useAuth();
 
     const [tournament, setTournament] = useState(null);
     const [teams, setTeams] = useState([]);
@@ -123,7 +125,7 @@ export default function TournamentDetailPage() {
                 name: teamName,
                 tournamentId: tournamentId,
                 status: 'registered'
-            });
+            }, user.token);
 
             setTeams([...teams, newTeam]);
             toast.success(`${teamName} added successfully!`);
@@ -148,7 +150,7 @@ export default function TournamentDetailPage() {
     async function confirmRemoveTeam() {
         try {
             const teamId = confirmModal.data;
-            await deleteTeam(teamId);
+            await deleteTeam(teamId, user.token);
             setTeams(teams.filter(t => t._id !== teamId));
             setConfirmModal({ isOpen: false });
             toast.success('Team removed');
@@ -166,7 +168,7 @@ export default function TournamentDetailPage() {
         setLoading(true);
         try {
             // Delete old matches first
-            await deleteMatchesByTournament(tournamentId);
+            await deleteMatchesByTournament(tournamentId, user.token);
 
             const shuffled = [...teams].sort(() => Math.random() - 0.5);
             const matches = [];
@@ -199,7 +201,7 @@ export default function TournamentDetailPage() {
                 }
 
                 // Save to backend
-                const createdMatch = await createMatch(matchData);
+                const createdMatch = await createMatch(matchData, user.token);
                 matches.push(createdMatch);
             }
 
@@ -228,7 +230,7 @@ export default function TournamentDetailPage() {
     async function confirmReset() {
         try {
             // Delete all matches from database
-            await deleteMatchesByTournament(tournamentId);
+            await deleteMatchesByTournament(tournamentId, user.token);
 
             // Clear local state
             setMatches([]);
@@ -271,7 +273,7 @@ export default function TournamentDetailPage() {
             await updateMatchScore(matchId, {
                 winner: winner,
                 status: 'completed'
-            });
+            }, user.token);
 
             // 2. Check if round is complete to generate next round
             // We need current bracket state to know if round is complete
@@ -318,7 +320,7 @@ export default function TournamentDetailPage() {
                                 isBye: true
                             };
                         }
-                        await createMatch(matchData);
+                        await createMatch(matchData, user.token);
                     }
                     toast.success(`Round ${bracket.currentRound + 1} started!`);
                 }
@@ -338,7 +340,7 @@ export default function TournamentDetailPage() {
     }
 
     if (!tournament) return null;
-
+    const isOwner = user && (user._id === tournament.createdBy || user.role === 'admin');
     const canAddMore = teams.length < tournament.teamCount;
 
     function reconstructBracketFromMatches(matches, teamCount) {
@@ -396,7 +398,7 @@ export default function TournamentDetailPage() {
                         <div className="text-right">
                             <div className="text-4xl font-black text-gradient">{teams.length}/{tournament.teamCount}</div>
                             <div className="text-xs text-slate-400">Teams</div>
-                            {canAddMore && (
+                            {canAddMore && isOwner && (
                                 <button
                                     onClick={() => navigate(`/tournament/${tournamentId}/register`)}
                                     className="mt-2 text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-full transition"
@@ -451,7 +453,7 @@ export default function TournamentDetailPage() {
                             <div className="lg:col-span-2 glass-card p-6">
                                 <div className="flex items-center justify-between mb-6">
                                     <h2 className="text-2xl font-bold text-white">Teams</h2>
-                                    {canAddMore && !showAddForm && (
+                                    {canAddMore && !showAddForm && isOwner && (
                                         <button onClick={() => setShowAddForm(true)} className="btn-primary">
                                             + Add Team
                                         </button>
@@ -496,18 +498,22 @@ export default function TournamentDetailPage() {
                                                     <p className="text-white font-semibold text-lg">{team.name}</p>
                                                 </div>
                                                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button
-                                                        onClick={() => setPlayerModal({ isOpen: true, team })}
-                                                        className="px-4 py-2 rounded-lg bg-indigo-500/10 text-indigo-300 hover:bg-indigo-500/20"
-                                                    >
-                                                        Manage Players
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleRemoveTeam(team._id)}
-                                                        className="px-4 py-2 rounded-lg bg-red-500/10 text-red-300 hover:bg-red-500/20"
-                                                    >
-                                                        Remove
-                                                    </button>
+                                                    {isOwner && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => setPlayerModal({ isOpen: true, team })}
+                                                                className="px-4 py-2 rounded-lg bg-indigo-500/10 text-indigo-300 hover:bg-indigo-500/20"
+                                                            >
+                                                                Manage Players
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleRemoveTeam(team._id)}
+                                                                className="px-4 py-2 rounded-lg bg-red-500/10 text-red-300 hover:bg-red-500/20"
+                                                            >
+                                                                Remove
+                                                            </button>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </div>
                                         ))}
@@ -515,18 +521,20 @@ export default function TournamentDetailPage() {
                                 )}
                             </div>
 
-                            <div className="glass-card p-6">
-                                <h3 className="text-lg font-bold text-white mb-4">Actions</h3>
-                                <div className="space-y-3">
-                                    <button
-                                        onClick={generateBracket}
-                                        disabled={teams.length < 2}
-                                        className="btn-primary w-full disabled:opacity-50"
-                                    >
-                                        📋 Create Tie Sheet
-                                    </button>
+                            {isOwner && (
+                                <div className="glass-card p-6">
+                                    <h3 className="text-lg font-bold text-white mb-4">Actions</h3>
+                                    <div className="space-y-3">
+                                        <button
+                                            onClick={generateBracket}
+                                            disabled={teams.length < 2}
+                                            className="btn-primary w-full disabled:opacity-50"
+                                        >
+                                            📋 Create Tie Sheet
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
                     ) : (
                         /* Bracket View */
@@ -544,9 +552,11 @@ export default function TournamentDetailPage() {
                                     >
                                         {downloading ? '⏳ Generating...' : '📥 Download Tiesheet'}
                                     </button>
-                                    <button onClick={handleResetBracket} className="btn-secondary">
-                                        🔄 Reset
-                                    </button>
+                                    {isOwner && (
+                                        <button onClick={handleResetBracket} className="btn-secondary">
+                                            🔄 Reset
+                                        </button>
+                                    )}
                                 </div>
                             </div>
 
@@ -557,32 +567,34 @@ export default function TournamentDetailPage() {
                                 onSelectWinner={selectWinner}
                             />
 
-                            {/* Admin Event Logger (Demo) */}
-                            <div className="mt-8 border-t border-white/10 pt-8">
-                                <h3 className="text-xl font-bold text-white mb-4">Admin Control: Log Events</h3>
-                                <p className="text-slate-400 mb-4 text-sm">Select a match to log events (goals, cards).</p>
+                            {/* Admin Event Logger */}
+                            {isOwner && (
+                                <div className="mt-8 border-t border-white/10 pt-8">
+                                    <h3 className="text-xl font-bold text-white mb-4">Admin Control: Log Events</h3>
+                                    <p className="text-slate-400 mb-4 text-sm">Select a match to log events (goals, cards).</p>
 
-                                <select
-                                    className="input-glass w-full mb-4 text-white"
-                                    value={selectedMatchId}
-                                    onChange={(e) => setSelectedMatchId(e.target.value)}
-                                >
-                                    <option value="" className="bg-slate-800 text-white">Select Match to Log Event...</option>
-                                    {matches.filter(m => m.status !== 'completed').map(m => (
-                                        <option key={m._id} value={m._id} className="bg-slate-800 text-white">
-                                            {m.team1.name} vs {m.team2.name} (Round {m.round})
-                                        </option>
-                                    ))}
-                                </select>
+                                    <select
+                                        className="input-glass w-full mb-4 text-white"
+                                        value={selectedMatchId}
+                                        onChange={(e) => setSelectedMatchId(e.target.value)}
+                                    >
+                                        <option value="" className="bg-slate-800 text-white">Select Match to Log Event...</option>
+                                        {matches.filter(m => m.status !== 'completed').map(m => (
+                                            <option key={m._id} value={m._id} className="bg-slate-800 text-white">
+                                                {m.team1.name} vs {m.team2.name} (Round {m.round})
+                                            </option>
+                                        ))}
+                                    </select>
 
-                                {selectedMatchId && matches.find(m => m._id === selectedMatchId) && (
-                                    <MatchEventLogger
-                                        matchId={selectedMatchId}
-                                        team1={matches.find(m => m._id === selectedMatchId).team1}
-                                        team2={matches.find(m => m._id === selectedMatchId).team2}
-                                    />
-                                )}
-                            </div>
+                                    {selectedMatchId && matches.find(m => m._id === selectedMatchId) && (
+                                        <MatchEventLogger
+                                            matchId={selectedMatchId}
+                                            team1={matches.find(m => m._id === selectedMatchId).team1}
+                                            team2={matches.find(m => m._id === selectedMatchId).team2}
+                                        />
+                                    )}
+                                </div>
+                            )}
                         </div>
                     )
                 )}

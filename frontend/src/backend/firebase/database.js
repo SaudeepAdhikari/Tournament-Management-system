@@ -11,12 +11,13 @@ const API_URL = 'https://kickoff-arena-quve.onrender.com/api';
 /**
  * Create a new tournament
  */
-export async function createTournament(tournamentData) {
+export async function createTournament(tournamentData, token) {
     try {
         const response = await fetch(`${API_URL}/tournaments`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(tournamentData),
         });
@@ -31,9 +32,10 @@ export async function createTournament(tournamentData) {
 /**
  * Get all tournaments
  */
-export async function getTournaments() {
+export async function getTournaments(userId) {
     try {
-        const response = await fetch(`${API_URL}/tournaments`);
+        const url = userId ? `${API_URL}/tournaments?user=${userId}` : `${API_URL}/tournaments`;
+        const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch tournaments');
         return await response.json();
     } catch (error) {
@@ -59,12 +61,13 @@ export async function getTournament(tournamentId) {
 /**
  * Update tournament
  */
-export async function updateTournament(tournamentId, updates) {
+export async function updateTournament(tournamentId, updates, token) {
     try {
         const response = await fetch(`${API_URL}/tournaments/${tournamentId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(updates),
         });
@@ -79,10 +82,13 @@ export async function updateTournament(tournamentId, updates) {
 /**
  * Delete tournament
  */
-export async function deleteTournament(tournamentId) {
+export async function deleteTournament(tournamentId, token) {
     try {
         const response = await fetch(`${API_URL}/tournaments/${tournamentId}`, {
             method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         });
         if (!response.ok) throw new Error('Failed to delete tournament');
         return tournamentId;
@@ -97,12 +103,13 @@ export async function deleteTournament(tournamentId) {
 /**
  * Create a new team
  */
-export async function createTeam(teamData) {
+export async function createTeam(teamData, token) {
     try {
         const response = await fetch(`${API_URL}/teams`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(teamData),
         });
@@ -151,10 +158,13 @@ export async function updateTeam(teamId, updates) {
 /**
  * Delete team
  */
-export async function deleteTeam(teamId) {
+export async function deleteTeam(teamId, token) {
     try {
         const response = await fetch(`${API_URL}/teams/${teamId}`, {
             method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         });
         if (!response.ok) throw new Error('Failed to delete team');
         return teamId;
@@ -169,12 +179,13 @@ export async function deleteTeam(teamId) {
 /**
  * Create a new match
  */
-export async function createMatch(matchData) {
+export async function createMatch(matchData, token) {
     try {
         const response = await fetch(`${API_URL}/matches`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(matchData),
         });
@@ -203,10 +214,13 @@ export async function getMatchesByTournament(tournamentId) {
 /**
  * Delete all matches for a tournament
  */
-export async function deleteMatchesByTournament(tournamentId) {
+export async function deleteMatchesByTournament(tournamentId, token) {
     try {
         const response = await fetch(`${API_URL}/matches?tournamentId=${tournamentId}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         });
         if (!response.ok) throw new Error('Failed to delete matches');
         return await response.json();
@@ -219,12 +233,13 @@ export async function deleteMatchesByTournament(tournamentId) {
 /**
  * Update match score
  */
-export async function updateMatchScore(matchId, scoreData) {
+export async function updateMatchScore(matchId, scoreData, token) {
     try {
         const response = await fetch(`${API_URL}/matches/${matchId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(scoreData),
         });

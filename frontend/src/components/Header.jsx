@@ -24,6 +24,7 @@ export default function Header() {
 
     const navLinks = [
         { name: 'Home', path: '/' },
+        { name: 'Tournaments', path: '/tournaments' },
         { name: 'Teams', path: '/teams' },
         { name: 'About', path: '/about' },
     ];

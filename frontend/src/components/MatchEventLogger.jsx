@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useToast } from './Toast';
+import { useAuth } from '../context/AuthContext';
 
 export default function MatchEventLogger({ matchId, team1, team2, onEventLogged }) {
     const [players, setPlayers] = useState([]);
@@ -8,14 +9,16 @@ export default function MatchEventLogger({ matchId, team1, team2, onEventLogged 
     const [minute, setMinute] = useState('');
     const [loading, setLoading] = useState(false);
     const toast = useToast();
+    const { user } = useAuth();
+    const API_URL = 'https://kickoff-arena-quve.onrender.com/api';
 
     useEffect(() => {
         // Fetch players for both teams
         async function fetchPlayers() {
             try {
-                const res1 = await fetch(`https://kickoff-arena-quve.onrender.com/api/players?teamId=${team1.id}`);
+                const res1 = await fetch(`${API_URL}/players?teamId=${team1.id}`);
                 const p1 = await res1.json();
-                const res2 = await fetch(`https://kickoff-arena-quve.onrender.com/api/players?teamId=${team2.id}`);
+                const res2 = await fetch(`${API_URL}/players?teamId=${team2.id}`);
                 const p2 = await res2.json();
 
                 setPlayers([...p1.map(p => ({ ...p, teamName: team1.name })), ...p2.map(p => ({ ...p, teamName: team2.name }))]);
@@ -35,9 +38,12 @@ export default function MatchEventLogger({ matchId, team1, team2, onEventLogged 
 
         setLoading(true);
         try {
-            const response = await fetch(`https://kickoff-arena-quve.onrender.com/api/matches/${matchId}/events`, {
+            const response = await fetch(`${API_URL}/matches/${matchId}/events`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.token}`
+                },
                 body: JSON.stringify({
                     type: eventType,
                     playerId: selectedPlayer._id,

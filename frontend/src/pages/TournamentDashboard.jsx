@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getTournaments, deleteTournament } from '../backend/firebase/database';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useToast } from '../components/Toast';
+import { useAuth } from '../context/AuthContext';
 import ConfirmModal from '../components/ConfirmModal';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -14,12 +15,13 @@ export default function TournamentDashboard() {
     const [filter, setFilter] = useState('all'); // all, upcoming, active, completed
     const [confirmModal, setConfirmModal] = useState({ isOpen: false });
     const toast = useToast();
+    const { user } = useAuth();
 
     useEffect(() => {
         async function loadTournaments() {
             try {
                 setLoading(true);
-                const data = await getTournaments();
+                const data = await getTournaments(user?._id);
                 setTournaments(data);
             } catch (error) {
                 console.error('Error loading tournaments:', error);
@@ -45,7 +47,7 @@ export default function TournamentDashboard() {
     async function confirmDelete() {
         const { tournamentId } = confirmModal;
         try {
-            await deleteTournament(tournamentId);
+            await deleteTournament(tournamentId, user.token);
             const updated = tournaments.filter(t => t._id !== tournamentId);
             setTournaments(updated);
             toast.success('Tournament deleted successfully');

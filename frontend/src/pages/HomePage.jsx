@@ -52,11 +52,21 @@ export default function HomePage() {
           {/* Action Buttons */}
           <div className="space-y-3">
             <button
-              onClick={() => navigate('/dashboard')}
-              className="btn-primary w-full group"
+              onClick={() => navigate('/tournaments')}
+              className="btn-primary w-full group mb-4"
             >
               <span className="flex items-center justify-center gap-2">
-                🎯 Tournament Dashboard
+                🌍 Explore Public Tournaments
+                <span className="transform group-hover:translate-x-1 transition-transform">→</span>
+              </span>
+            </button>
+
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="btn-secondary w-full group"
+            >
+              <span className="flex items-center justify-center gap-2">
+                🎯 My Dashboard
                 <span className="transform group-hover:translate-x-1 transition-transform">→</span>
               </span>
             </button>
