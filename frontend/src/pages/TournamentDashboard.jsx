@@ -31,7 +31,7 @@ export default function TournamentDashboard() {
             }
         }
         loadTournaments();
-    }, [user?._id, toast, getTournaments]);
+    }, [user?._id, toast]);
 
     function handleDeleteClick(tournamentId) {
         setConfirmModal({

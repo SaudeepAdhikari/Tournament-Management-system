@@ -62,7 +62,7 @@ export default function TournamentDetailPage() {
             }
         }
         loadData();
-    }, [tournamentId, toast, navigate, getTournament, getTeamsByTournament, getMatchesByTournament]);
+    }, [tournamentId, toast, navigate]);
 
     // Update bracket when matches change
     useEffect(() => {
