@@ -27,7 +27,7 @@ export default function PublicTournamentsPage() {
             }
         }
         loadTournaments();
-    }, [toast]);
+    }, [toast, getTournaments]);
 
     const filteredTournaments = tournaments.filter(t => {
         if (filter === 'all') return true;
