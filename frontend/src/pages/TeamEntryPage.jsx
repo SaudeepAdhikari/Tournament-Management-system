@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TeamInputRow from '../components/TeamInputRow';
-
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 // TeamEntryPage: dynamic list of team inputs (8-16) and Generate Bracket
 export default function TeamEntryPage() {
   const navigate = useNavigate();
@@ -69,8 +70,10 @@ export default function TeamEntryPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-dark p-6">
-      <div className="w-full max-w-4xl animate-slide-in-up">
+    <div className="min-h-screen flex flex-col bg-gradient-dark">
+      <Header />
+      <main className="flex-grow flex items-center justify-center p-6 pt-28">
+        <div className="w-full max-w-4xl animate-slide-in-up">
         {/* Header Card */}
         <div className="glass-card p-6 mb-6">
           <div className="flex items-center justify-between">
@@ -132,7 +135,9 @@ export default function TeamEntryPage() {
             <span>✓ Smart seeding</span>
           </div>
         </div>
-      </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }

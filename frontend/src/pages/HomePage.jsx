@@ -25,7 +25,7 @@ export default function HomePage() {
               <div className="text-6xl mb-2">⚽</div>
             </div>
             <h1 className="text-5xl font-black text-gradient mb-3">
-              Professional Tournament Management System
+              Ultimate Futsal Tournament Management Platform
             </h1>
 
             <p className="text-sm text-slate-400 mt-2">

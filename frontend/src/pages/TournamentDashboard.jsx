@@ -4,6 +4,8 @@ import { getTournaments, deleteTournament } from '../backend/firebase/database';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useToast } from '../components/Toast';
 import ConfirmModal from '../components/ConfirmModal';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 export default function TournamentDashboard() {
     const navigate = useNavigate();
@@ -77,8 +79,10 @@ export default function TournamentDashboard() {
     }
 
     return (
-        <div className="min-h-screen p-6 pb-20">
-            <div className="max-w-7xl mx-auto">
+        <div className="min-h-screen flex flex-col">
+            <Header />
+            <main className="flex-grow p-6 pt-28 pb-20">
+                <div className="max-w-7xl mx-auto">
                 {/* Hero Section */}
                 <div className="relative mb-12 pt-8 animate-fade-in">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-6">
@@ -95,7 +99,7 @@ export default function TournamentDashboard() {
                             <div className="flex gap-4 mt-8">
                                 <button
                                     onClick={() => navigate('/tournament/create')}
-                                    className="btn-primary"
+                                    className="btn-primary !animate-none"
                                 >
                                     + Create Tournament
                                 </button>
@@ -109,9 +113,9 @@ export default function TournamentDashboard() {
                         </div>
 
                         {/* Floating 3D Element (Decorative) */}
-                        <div className="hidden md:block relative animate-float">
+                        <div className="hidden md:block relative">
                             <div className="absolute inset-0 bg-indigo-500/20 blur-[100px] rounded-full"></div>
-                            <div className="relative text-[120px] leading-none filter drop-shadow-2xl transform rotate-12 hover:rotate-0 transition-transform duration-500 cursor-default">
+                            <div className="relative text-[120px] leading-none filter drop-shadow-2xl cursor-default">
                                 🏆
                             </div>
                         </div>
@@ -206,7 +210,8 @@ export default function TournamentDashboard() {
                         ))}
                     </div>
                 )}
-            </div>
+                </div>
+            </main>
 
             <ConfirmModal
                 isOpen={confirmModal.isOpen}
@@ -217,6 +222,7 @@ export default function TournamentDashboard() {
                 type={confirmModal.type}
                 confirmText="Delete"
             />
+            <Footer />
         </div>
     );
 }

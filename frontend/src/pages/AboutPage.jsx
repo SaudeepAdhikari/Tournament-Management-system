@@ -1,15 +1,18 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 export default function AboutPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-slate-900 to-black p-6">
-      <div className="max-w-4xl w-full rounded-2xl border border-white/20 p-10 shadow-xl backdrop-blur-lg bg-white/5">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-900 via-slate-900 to-black">
+      <Header />
+      <main className="flex-grow flex items-center justify-center p-6 pt-28">
+        <div className="max-w-4xl w-full rounded-2xl border border-white/20 p-10 shadow-xl backdrop-blur-lg bg-white/5">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-extrabold text-white mb-2">About KickOff Arena</h1>
-          <p className="text-indigo-200/80 text-lg">Professional Tournament Management System</p>
+          <p className="text-indigo-200/80 text-lg">Ultimate Futsal Tournament Management Platform</p>
         </div>
 
         <div className="space-y-6 text-white/90">
@@ -79,7 +82,9 @@ export default function AboutPage() {
             Create Tournament
           </button>
         </div>
-      </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }

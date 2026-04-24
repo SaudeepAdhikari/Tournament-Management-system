@@ -16,7 +16,7 @@ const generateToken = (id) => {
 // @route   POST /api/users
 // @access  Public
 router.post('/', async (req, res) => {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, phone } = req.body;
 
     if (!name || !email || !password) {
         return res.status(400).json({ message: 'Please add all fields' });
@@ -38,7 +38,8 @@ router.post('/', async (req, res) => {
         name,
         email,
         password: hashedPassword,
-        role: role || 'user'
+        role: role || 'user',
+        phone: phone || ''
     });
 
     if (user) {
@@ -47,6 +48,7 @@ router.post('/', async (req, res) => {
             name: user.name,
             email: user.email,
             role: user.role,
+            phone: user.phone,
             token: generateToken(user._id),
         });
     } else {
@@ -69,6 +71,7 @@ router.post('/login', async (req, res) => {
             name: user.name,
             email: user.email,
             role: user.role,
+            phone: user.phone,
             token: generateToken(user._id),
         });
     } else {
@@ -79,8 +82,36 @@ router.post('/login', async (req, res) => {
 // @desc    Get user data
 // @route   GET /api/users/me
 // @access  Private
-router.get('/me', protect, async (req, res) => {
-    res.status(200).json(req.user);
+// @desc    Update user profile
+// @route   PUT /api/users/profile
+// @access  Private
+router.put('/profile', protect, async (req, res) => {
+    const user = await User.findById(req.user._id);
+
+    if (user) {
+        user.name = req.body.name || user.name;
+        user.email = req.body.email || user.email;
+        user.phone = req.body.phone || user.phone;
+        user.role = req.body.role || user.role;
+
+        if (req.body.password) {
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(req.body.password, salt);
+        }
+
+        const updatedUser = await user.save();
+
+        res.json({
+            _id: updatedUser._id,
+            name: updatedUser.name,
+            email: updatedUser.email,
+            role: updatedUser.role,
+            phone: updatedUser.phone,
+            token: generateToken(updatedUser._id),
+        });
+    } else {
+        res.status(404).json({ message: 'User not found' });
+    }
 });
 
 module.exports = router;

@@ -13,6 +13,7 @@ import TournamentDetailPage from './pages/TournamentDetailPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import TeamRegistrationPage from './pages/TeamRegistrationPage';
+import ProfilePage from './pages/ProfilePage';
 import ErrorBoundary from './components/ErrorBoundary';
 import './App.css';
 
@@ -36,6 +37,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <TournamentDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <ProfilePage />
                   </ProtectedRoute>
                 }
               />

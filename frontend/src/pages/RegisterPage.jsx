@@ -8,6 +8,7 @@ export default function RegisterPage() {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
+        phone: '',
         password: '',
         confirmPassword: '',
         role: 'user' // Default role
@@ -30,7 +31,7 @@ export default function RegisterPage() {
 
         try {
             setLoading(true);
-            await register(formData.name, formData.email, formData.password, formData.role);
+            await register(formData.name, formData.email, formData.password, formData.role, formData.phone);
             toast.success('Account created successfully');
             navigate('/dashboard');
         } catch (error) {
@@ -41,7 +42,7 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-black p-6">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-black p-6 text-white">
             <div className="w-full max-w-md animate-fade-in">
                 <div className="glass-card p-8">
                     <div className="text-center mb-8">
@@ -60,7 +61,6 @@ export default function RegisterPage() {
                                 value={formData.name}
                                 onChange={handleChange}
                                 className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-                                placeholder="John Doe"
                                 required
                             />
                         </div>
@@ -75,7 +75,20 @@ export default function RegisterPage() {
                                 value={formData.email}
                                 onChange={handleChange}
                                 className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-                                placeholder="john@example.com"
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-slate-300 mb-2">
+                                Phone Number
+                            </label>
+                            <input
+                                type="tel"
+                                name="phone"
+                                value={formData.phone}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
                                 required
                             />
                         </div>
@@ -106,7 +119,6 @@ export default function RegisterPage() {
                                 value={formData.password}
                                 onChange={handleChange}
                                 className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-                                placeholder="••••••••"
                                 required
                             />
                         </div>
@@ -121,7 +133,6 @@ export default function RegisterPage() {
                                 value={formData.confirmPassword}
                                 onChange={handleChange}
                                 className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-                                placeholder="••••••••"
                                 required
                             />
                         </div>

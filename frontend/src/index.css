@@ -36,7 +36,7 @@
 
   /* Premium Buttons */
   .btn-primary {
-    @apply relative overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-[length:200%_auto] text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transform hover:scale-[1.02] transition-all duration-300 animate-shimmer;
+    @apply relative overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transform hover:scale-[1.02] transition-all duration-300;
   }
 
   /* ... (other styles) ... */

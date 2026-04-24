@@ -43,20 +43,45 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const register = async (name, email, password, role) => {
+    const register = async (name, email, password, role, phone) => {
         try {
             const response = await fetch('http://localhost:5000/api/users', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ name, email, password, role }),
+                body: JSON.stringify({ name, email, password, role, phone }),
             });
 
             const data = await response.json();
 
             if (!response.ok) {
                 throw new Error(data.message || 'Registration failed');
+            }
+
+            localStorage.setItem('user', JSON.stringify(data));
+            setUser(data);
+            return data;
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    const updateProfile = async (userData) => {
+        try {
+            const response = await fetch('http://localhost:5000/api/users/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.token}`
+                },
+                body: JSON.stringify(userData),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Update failed');
             }
 
             localStorage.setItem('user', JSON.stringify(data));
@@ -74,7 +99,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, register, logout, updateProfile, loading }}>
             {children}
         </AuthContext.Provider>
     );
